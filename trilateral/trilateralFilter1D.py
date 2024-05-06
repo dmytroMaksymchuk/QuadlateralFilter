@@ -3,8 +3,8 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-from helpers.addGaussianNoise import add_gauss_noise_1d
-from bilateral.bilateralFilter1D import bilateral_filter_1D
+from QuadlateralFilter.bilateral.bilateralFilter1D import bilateral_filter_1D
+from QuadlateralFilter.helpers.addGaussianNoise import add_gauss_noise_1d
 
 
 def gaussian_kernel_1d(sigma, x):
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     # Concatenate the two arrays
     inp_original = np.concatenate((const1, down, up, const2))
 
-    inp = add_gauss_noise_1d(inp_original, 6)
+    inp = add_gauss_noise_1d(inp_original, 3)
 
     out = trilateral_filter(inp, 3)
     out_bilat = bilateral_filter_1D(out, 3, 30)

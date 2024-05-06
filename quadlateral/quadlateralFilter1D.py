@@ -3,9 +3,9 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-from helpers.addGaussianNoise import add_gauss_noise_1d
-from bilateral.bilateralFilter1D import bilateral_filter_1D
-from trilateral.trilateralFilter1D import trilateral_filter
+from QuadlateralFilter.bilateral.bilateralFilter1D import bilateral_filter_1D
+from QuadlateralFilter.helpers.addGaussianNoise import add_gauss_noise_1d
+from QuadlateralFilter.trilateral.trilateralFilter1D import trilateral_filter
 
 
 def gaussian_kernel_1d(sigma, x):
@@ -96,7 +96,8 @@ def quadrateral_filter(inp, sigma_spatial):
 
         # Compute plane
         ax2 = second_bilateral_derivative[i] / 2 * ((np.arange(regionLB, regionUB) - i) ** 2)
-        bx = first_bilateral_derivative[i] * (np.arange(regionLB, regionUB) - i) - ax2
+        bx = (first_bilateral_derivative[i] * (np.arange(regionLB, regionUB) - i) -
+              ((np.arange(regionLB, regionUB) - i) * second_bilateral_derivative[i] / 2))
         c = inp[i]
 
         quad_plane = ax2 + bx + c

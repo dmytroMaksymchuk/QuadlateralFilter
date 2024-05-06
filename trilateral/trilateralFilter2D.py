@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
 
-from helpers.addGaussianNoise import add_gauss_noise_1d, add_gauss_noise_2d
-from bilateral.bilateralFilter1D import bilateral_filter_1D
+from QuadlateralFilter.helpers.addGaussianNoise import add_gauss_noise_2d
+
 
 def gaussian_kernel(sigma, x):
     return (1 / (2 * math.pi * sigma ** 2)) * np.exp(-(x ** 2) / (2 * sigma ** 2))
