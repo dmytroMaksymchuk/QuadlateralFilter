@@ -1,8 +1,8 @@
 import math
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2 as cv
 
 from QuadlateralFilter.helpers.addGaussianNoise import add_gauss_noise_2d
 
@@ -67,7 +67,7 @@ def trilateral_filter_2d(img, sigma_spatial):
 
 
     # Compute Sigma for range kernel
-    beta = 1
+    beta = 5
     sigma_intensity = beta * distance(np.max(np.sqrt(average_gradients_y ** 2 + average_gradients_x ** 2)),
                                       np.min(np.sqrt(average_gradients_y ** 2 + average_gradients_x ** 2)))
     R = sigma_intensity
@@ -164,7 +164,8 @@ def trilateral_filter_2d(img, sigma_spatial):
 
 
 if __name__ == '__main__':
-    img = cv.imread('../images/smaller_lamp.jpg', cv.IMREAD_GRAYSCALE)
+
+    img = 0
     sigmaSpatial = 3
     noised_img = add_gauss_noise_2d(img, 6)
     filtered_image = trilateral_filter_2d(noised_img, sigmaSpatial)

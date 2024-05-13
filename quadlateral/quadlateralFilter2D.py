@@ -2,9 +2,11 @@ import math
 
 import matplotlib.pyplot as plt
 import numpy as np
+from plotly.subplots import make_subplots
 
+from QuadlateralFilter.bilateral.bilateralFilter import bilateral_filter
 from QuadlateralFilter.helpers.addGaussianNoise import add_gauss_noise_2d
-from QuadlateralFilter.trilateral.trilateralFilter2D import match_shape, distance, gaussian_kernel
+from QuadlateralFilter.trilateral.trilateralFilter2D import match_shape, distance, gaussian_kernel, trilateral_filter_2d
 
 
 def gaussian_kernel_1d(sigma, x):
@@ -41,10 +43,9 @@ def get_bilateral_derivative_y(img, kernel_size, spatial_kernel, sigma_intensity
             grad_s_kernel = gaussian_kernel_1d(sigma_intensity, np.abs(region_gradient_y))
 
             # Kernel
-            grad_kernel = grad_s_kernel * spatial_kernel[max(kernel_size - i, 0):min(kernel_size + (img.shape[0] - i),
-                                                                                     (2 * kernel_size) + 1),
-                                          max(kernel_size - j, 0):min(kernel_size + (img.shape[1] - j),
-                                                                      (2 * kernel_size) + 1)]
+            grad_kernel = grad_s_kernel * spatial_kernel[
+                                          max(kernel_size - i, 0):min(kernel_size + (img.shape[0] - i), (2 * kernel_size) + 1),
+                                          max(kernel_size - j, 0):min(kernel_size + (img.shape[1] - j), (2 * kernel_size) + 1)]
 
             if np.sum(grad_kernel) != 0:
                 grad_kernel /= np.sum(grad_kernel)
@@ -210,8 +211,11 @@ def quadrateral_filter_2d(img, sigma_spatial):
     print("sigma_intensity", sigma_intensity)
 
     derivative_y, derivative_x = get_bilateral_derivative(img, kernel_size, spatial_kernel, sigma_intensity)
-    derivative_xx = get_bilateral_derivative_x(img, kernel_size, spatial_kernel, sigma_intensity)
-    derivative_yy = get_bilateral_derivative_y(img, kernel_size, spatial_kernel, sigma_intensity)
+    derivative_xy = get_bilateral_derivative_y(derivative_x, kernel_size, spatial_kernel, sigma_intensity)
+    derivative_xx = get_bilateral_derivative_x(derivative_x, kernel_size, spatial_kernel, sigma_intensity)
+    derivative_yy = get_bilateral_derivative_y(derivative_y, kernel_size, spatial_kernel, sigma_intensity)
+
+    quad_planes = np.empty((img.shape[1], img.shape[0]), dtype=object)
 
     # Apply filter
     for i in range(img.shape[0]):
@@ -226,16 +230,15 @@ def quadrateral_filter_2d(img, sigma_spatial):
 
 
             # Compute plane ax^2 + by^2 + cx + dy + e
+            # Q_f(x, y) = f(x_0, y_0) + f_x(x_0, y_0)(x - x_0) + f_y(x_0, y_0)(y - y_0) + ½ f_{xx}(x_0, y_0)(x-x_0)^2 + f_{xy}(x_0, y_0)(x-x_0)(y-y_0) + ½ f_{yy}(x_0, y_0)(y-y_0)^2
 
-            ax2 = derivative_xx[i][j] / 2 * np.repeat(x_arranged[np.newaxis, :], len(y_arranged), axis=0) ** 2
-            by2 = derivative_yy[i][j] / 2 * np.repeat(y_arranged[:, np.newaxis], len(x_arranged), axis=1) ** 2
-            cx = derivative_x[i][j] * np.repeat(x_arranged[np.newaxis, :], len(y_arranged), axis=0) - \
-                 derivative_xx[i][j] * np.repeat(x_arranged[np.newaxis, :], len(y_arranged), axis=0) ** 2
-            dy = derivative_y[i][j] * np.repeat(y_arranged[:, np.newaxis], len(x_arranged), axis=1) - \
-                 derivative_yy[i][j] * np.repeat(y_arranged[:, np.newaxis], len(x_arranged), axis=1) ** 2
-            e = img[i, j]
+            change_X = np.repeat(x_arranged[np.newaxis, :], len(y_arranged), axis=0)
+            change_Y = np.repeat(y_arranged[:, np.newaxis], len(x_arranged), axis=1)
 
-            quad_plane = ax2 + by2 + cx + dy + e
+            quad_plane = derivative_x[i][j] * change_X + derivative_y[i][j] * change_Y
+            quad_plane += img[i][j]
+            quad_plane += 0.5 * derivative_xx[i][j] * change_X ** 2 + 0.5 * derivative_yy[i][j] * change_Y ** 2 + derivative_xy[i][j] * change_X * change_Y
+            quad_planes[i][j] = quad_plane
 
             # I{delta}(x, vector)
             diff_from_plane = region - quad_plane
@@ -258,7 +261,7 @@ def quadrateral_filter_2d(img, sigma_spatial):
             # Compute final value
             filtered_img[i][j] = img[i][j] + np.sum(diff_from_plane * kernel)
 
-    return filtered_img
+    return filtered_img, quad_planes
 
 
 
@@ -273,48 +276,48 @@ def add_gauss_noise_shape(img, sigma=1):
 
     return noisy_img
 
+
+import plotly.graph_objects as go
 if __name__ == '__main__':
     # Define grid of x and y coordinates
     x = np.linspace(-5, 5, 100)
     y = np.linspace(-5, 5, 100)
     X, Y = np.meshgrid(x, y)
 
-    # Define parameters of the parabolic surface equation: z = ax^2 + by^2 + c
-    a = 1
-    b = -1
-    c = 3
+    Z = np.sin(X) * np.cos(Y) * 10
 
-    # Calculate z values using the parabolic equation
-    Z = a * X ** 2 + b * Y ** 2 + c
+    # noised_Z = add_gauss_noise_shape(Z, sigma=1)
+    noised_Z = Z
 
-    noised_Z = add_gauss_noise_shape(Z, 1)
+    tri_filtered_Z = trilateral_filter_2d(noised_Z, 5)
 
-    filtered_Z = quadrateral_filter_2d(noised_Z, 3)
+    filtered_Z, quad = quadrateral_filter_2d(noised_Z, 5)
 
-    # Plot the surface
-    fig, axs = plt.subplots(1, 4, figsize=(12, 5), subplot_kw={'projection': '3d'})
+    # Visualize ------------------------
 
-    # Plot first parabolic surface
-    axs[0].plot_surface(X, Y, Z, cmap='viridis')
-    axs[0].set_title('Parabolic Surface')
-    axs[0].set_xlabel('X')
-    axs[0].set_ylabel('Y')
-    axs[0].set_zlabel('Z')
+    fig = go.Figure(data=[go.Surface(z = noised_Z)])
+    fig.update_traces(contours_z=dict(show=True, usecolormap=True,
+                                      highlightcolor="limegreen", project_z=True))
+    fig.update_layout(title='Quadlateral filter', autosize=True,
+                      width=1000, height=800,
+                      margin=dict(l=65, r=50, b=65, t=90))
+    fig.show()
 
-    # Noised surface
-    axs[1].plot_surface(X, Y, noised_Z, cmap='viridis')
-    axs[1].set_title('Noised Surface')
-    axs[1].set_xlabel('X')
-    axs[1].set_ylabel('Y')
-    axs[1].set_zlabel('Z')
+    fig2 = go.Figure(data=[go.Surface(z=filtered_Z)])
+    fig2.update_traces(contours_z=dict(show=True, usecolormap=True,
+                                      highlightcolor="limegreen", project_z=True))
+    fig2.update_layout(title='Quadlateral filter', autosize=True,
+                      width=1000, height=800,
+                      margin=dict(l=65, r=50, b=65, t=90))
+    fig2.show()
 
-    # Filtered surface
-    axs[2].plot_surface(X, Y, filtered_Z, cmap='viridis')
-    axs[2].set_title('Filtered Surface')
-    axs[2].set_xlabel('X')
-    axs[2].set_ylabel('Y')
-    axs[2].set_zlabel('Z')
+    fig3 = go.Figure(data=[go.Surface(z=tri_filtered_Z)])
+    fig3.update_traces(contours_z=dict(show=True, usecolormap=True,
+                                       highlightcolor="limegreen", project_z=True))
+    fig3.update_layout(title='Quadlateral filter', autosize=True,
+                       width=1000, height=800,
+                       margin=dict(l=65, r=50, b=65, t=90))
+    fig3.show()
 
-
-    plt.tight_layout()
-    plt.show()
+    print("Mean diff quad", np.mean(np.abs(Z - filtered_Z)))
+    print("Mean tri quad", np.mean(np.abs(Z - tri_filtered_Z)))

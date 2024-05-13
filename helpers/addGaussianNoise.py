@@ -1,4 +1,3 @@
-import cv2 as cv
 import numpy as np
 
 
@@ -19,16 +18,7 @@ def add_gauss_noise_1d(inp, sigma=1):
     # Add Gaussian noise
     noise = np.random.normal(0, sigma, np.size(inp))
 
-    noisy_out = np.clip(inp + noise, 0, 255).astype(np.uint8)
+    noisy_out = inp + noise
 
     return noisy_out
 
-
-if __name__ == '__main__':
-    img = cv.imread('../images/image.jpg', cv.IMREAD_GRAYSCALE)
-
-    noisy_img = add_gauss_noise(img, 10)
-    cv.imshow('Noisy Image', noisy_img)
-    cv.imshow('Original Image', img)
-    cv.waitKey(0)
-    cv.destroyAllWindows()

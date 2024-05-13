@@ -42,7 +42,7 @@ def trilateral_filter(inp, sigma_spatial):
         average_gradients[i] = np.mean(region_gradient)
 
     # Compute Sigma for range kernel
-    beta = 2
+    beta = 7
     sigma_intensity = beta * np.abs(np.max(average_gradients) - np.min(average_gradients))
     R = sigma_intensity
 

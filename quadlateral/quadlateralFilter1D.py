@@ -125,11 +125,11 @@ def quadrateral_filter(inp, sigma_spatial):
 
 if __name__ == '__main__':
     a = 10 # coefficient of x^2
-    b = -5  # coefficient of x
+    b = 0  # coefficient of x
     c = 0  # constant term
 
     # Define the range of x values
-    x_values = np.linspace(-5, 5, 100).astype(float)  # Adjust the range and number of points as needed
+    x_values = np.linspace(-5, 5, 20).astype(float)  # Adjust the range and number of points as needed
 
     # Calculate the y values using the parabolic equation
     y_values = a * x_values ** 2 + b * x_values + c
@@ -140,9 +140,10 @@ if __name__ == '__main__':
 
     inp = add_gauss_noise_1d(inp_original, 10)
 
-    out = quadrateral_filter(inp, 4)
-    out_bilat = bilateral_filter_1D(inp, 10, 50)
-    out_trilat = trilateral_filter(inp, 3)
+
+    out = quadrateral_filter(inp, 5)
+    out_bilat = bilateral_filter_1D(inp, 4, 50)
+    out_trilat = trilateral_filter(inp, 5)
 
     plt.figure(figsize=(15, 5))
     plt.subplot(131)
@@ -163,15 +164,15 @@ if __name__ == '__main__':
 
     plt.subplot(153)
     plt.plot(out)
-    plt.title('Quad Filter Output')
+    plt.title('Quad Filter Difference')
 
     plt.subplot(154)
-    plt.plot(out_bilat)
-    plt.title('Bilateral Filter Output')
+    plt.plot(out_trilat)
+    plt.title('Trilateral Filter Difference')
 
     plt.subplot(155)
-    plt.plot(out_trilat)
-    plt.title('Trilateral Filter Output')
+    plt.plot(out_bilat)
+    plt.title('Bilateral Filter Difference')
 
     plt.show()
 

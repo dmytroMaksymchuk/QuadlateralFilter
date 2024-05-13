@@ -2,7 +2,6 @@ import math
 
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2 as cv
 
 from QuadlateralFilter.helpers.addGaussianNoise import add_gauss_noise_1d
 
@@ -58,7 +57,6 @@ if __name__ == '__main__':
 
     out = bilateral_filter_1D(inp, 20, 20)
 
-    out_cv = cv.bilateralFilter(inp, 6, 2, 2)
 
     plt.figure(figsize=(5, 5))
     plt.subplot(121)
