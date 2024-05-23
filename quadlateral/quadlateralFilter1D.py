@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from QuadlateralFilter.bilateral.bilateralFilter1D import bilateral_filter_1D
-from QuadlateralFilter.helpers.addGaussianNoise import add_gauss_noise_1d
+from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_1d_signal
 from QuadlateralFilter.trilateral.trilateralFilter1D import trilateral_filter
 
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     inp_original = y_values
     inp_original = inp_original.clip(0, 255)
 
-    inp = add_gauss_noise_1d(inp_original, 10)
+    inp = add_gauss_noise_1d_signal(inp_original, 10)
 
 
     out = quadrateral_filter(inp, 5)

@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-from QuadlateralFilter.helpers.addGaussianNoise import add_gauss_noise_1d
+from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_1d
 
 
 def gaussian_kernel_1d(sigma, x):

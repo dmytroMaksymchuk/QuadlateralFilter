@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import cv2 as cv
 
-from helpers.addGaussianNoise import add_gauss_noise_2d
+from helpers.gaussianHelper import add_gauss_noise_2d
 from bilateral.bilateralFilter import bilateral_filter
 
 if __name__ == '__main__':
