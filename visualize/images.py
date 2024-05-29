@@ -11,7 +11,7 @@ if __name__ == '__main__':
     img = cv.imread('../images/clouds.png', cv.IMREAD_GRAYSCALE)
 
     sigmaSpatial = 8
-    sigmaIntensity = 15
+    sigmaIntensity = 10
 
     kernelSize = sigmaSpatial * 6 + 1
     noised_img = add_gauss_noise_2d_image(img, 10)
@@ -47,13 +47,7 @@ if __name__ == '__main__':
     ssimTrilateral *= 255
 
 
-<<<<<<< HEAD
-    path = '../images/clouds_8_15_10/'
-||||||| 402d454d
-    path = '../images/clouds_3_5_10/'
-=======
-    path = '../images/clouds_3_25_10/'
->>>>>>> dbb23472021903bedc5b676805c36f15065d1476
+    path = '../images/clouds_8_10_10/'
 
     cv.imwrite(path + 'quadlateral.jpg', quad.astype(np.uint8))
     cv.imwrite(path + 'bilateral.jpg', bilateral)
