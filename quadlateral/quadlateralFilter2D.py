@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
 
-from QuadlateralFilter.helpers.Utils import calc_psnr, distance
-from QuadlateralFilter.helpers.gaussianHelper import gaussian_kernel_2d, add_gauss_noise_2d_image
-from QuadlateralFilter.helpers.gradients import get_bilateral_derivative_y, get_bilateral_derivative_x
+from helpers.Utils import distance, calc_psnr
+from helpers.gaussianHelper import gaussian_kernel_2d, add_gauss_noise_2d_image
+from helpers.gradients import get_bilateral_derivative_y, get_bilateral_derivative_x
 
 
 def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=False, inclusion_threshold=-1):

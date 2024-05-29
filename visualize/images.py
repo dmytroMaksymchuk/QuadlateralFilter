@@ -2,15 +2,15 @@ import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
 
-from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_2d_image
-from QuadlateralFilter.quadlateral.quadlateralFilter2D import quadrateral_filter_2d
-from QuadlateralFilter.trilateral.trilateralFilter2D import trilateral_filter_2d
+from helpers.gaussianHelper import add_gauss_noise_2d_image
+from quadlateral.quadlateralFilter2D import quadrateral_filter_2d
+from trilateral.trilateralFilter2D import trilateral_filter_2d
 from skimage.metrics import structural_similarity as ssim
 
 if __name__ == '__main__':
     img = cv.imread('../images/clouds.png', cv.IMREAD_GRAYSCALE)
-    sigmaSpatial = 3
-    sigmaIntensity = 5
+    sigmaSpatial = 8
+    sigmaIntensity = 15
     kernelSize = sigmaSpatial * 6 + 1
     noised_img = add_gauss_noise_2d_image(img, 10)
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     ssimTrilateral *= 255
 
 
-    path = '../images/clouds_3_5_10/'
+    path = '../images/clouds_8_15_10/'
 
     cv.imwrite(path + 'quadlateral.jpg', quad.astype(np.uint8))
     cv.imwrite(path + 'bilateral.jpg', bilateral)

@@ -1,7 +1,7 @@
 import numpy as np
 
-from QuadlateralFilter.helpers.Utils import match_shape
-from QuadlateralFilter.helpers.gaussianHelper import gaussian_kernel_2d
+from helpers.Utils import match_shape
+from helpers.gaussianHelper import gaussian_kernel_2d
 
 
 def get_bilateral_derivative_y(img, kernel_size, spatial_kernel, sigma_intensity):

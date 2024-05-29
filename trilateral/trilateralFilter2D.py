@@ -4,9 +4,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-from QuadlateralFilter.helpers.Utils import match_shape, distance
-from QuadlateralFilter.helpers.gaussianHelper import gaussian_kernel_2d, add_gauss_noise_2d_signal
-from QuadlateralFilter.helpers.gradients import get_average_gradients
+from helpers.Utils import match_shape, distance
+from helpers.gaussianHelper import gaussian_kernel_2d, add_gauss_noise_2d_signal
+from helpers.gradients import get_average_gradients
 
 
 def trilateral_filter_2d(img, sigma_spatial, sigma_intensity=10):
