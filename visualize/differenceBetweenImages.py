@@ -3,8 +3,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
-    img1 = cv.imread('../images/golf2/quadlateral.jpg', cv.IMREAD_GRAYSCALE)
-    img2 = cv.imread('../images/golf2/noised.jpg', cv.IMREAD_GRAYSCALE)
+    img1 = cv.imread('../images/clouds_8_25_10_incl/quadInclud.jpg', cv.IMREAD_GRAYSCALE)
+    img2 = cv.imread('../images/clouds_8_25_10_incl/quadlateral.jpg', cv.IMREAD_GRAYSCALE)
     diff = img1.astype(np.float32) - img2.astype(np.float32)
 
     plt.figure(figsize=(10, 10))

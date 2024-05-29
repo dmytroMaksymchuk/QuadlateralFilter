@@ -1,16 +1,12 @@
 # Import packages
 import numpy as np
 from dash import Dash, html, dash_table, dcc, callback, Output, Input, dash, ctx
-import matplotlib.pyplot as plt
-import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import cv2 as cv
 
-from QuadlateralFilter.bilateral.bilateralFilter import bilateral_filter
-from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_2d_image
-from QuadlateralFilter.quadlateral.quadlateralFilter2D import quadrateral_filter_2d
-from QuadlateralFilter.trilateral.trilateralFilter2D import trilateral_filter_2d
+from helpers.gaussianHelper import add_gauss_noise_2d_image
+from quadlateral.quadlateralFilter2D import quadrateral_filter_2d
+from trilateral.trilateralFilter2D import trilateral_filter_2d
 
 def get_data():
     x = np.linspace(-2 , 2, 100)
@@ -28,7 +24,7 @@ def get_data():
 
     # Z = cv.imread('../images/golf_snippet_low_contrast.png', cv.IMREAD_GRAYSCALE)
 
-    noised_Z = add_gauss_noise_2d_image(Z, 4)
+    noised_Z = add_gauss_noise_2d_image(Z, 3)
     # noised_Z = Z
 
     noised_Z = noised_Z.clip(0, 255).astype(np.uint8)
@@ -176,4 +172,4 @@ def update_graph(graph_chosen, x_coord, y_coord):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port= 8051)

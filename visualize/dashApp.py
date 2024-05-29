@@ -1,17 +1,13 @@
 # Import packages
 import numpy as np
 from dash import Dash, html, dash_table, dcc, callback, Output, Input, dash, ctx
-import matplotlib.pyplot as plt
-import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import cv2 as cv
 
-from QuadlateralFilter.bilateral.bilateralFilter import bilateral_filter
-from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_2d_image
-from QuadlateralFilter.quadlateral.quadlateralFilter2D import quadrateral_filter_2d
-from QuadlateralFilter.quadlateral.quadlateralFilter2DUncertainty import quadrateral_filter_2d_interp
-from QuadlateralFilter.trilateral.trilateralFilter2D import trilateral_filter_2d
+from helpers.gaussianHelper import add_gauss_noise_2d_image
+from quadlateral.quadlateralFilter2D import quadrateral_filter_2d
+from quadlateral.quadlateralFilter2DUncertainty import quadrateral_filter_2d_interp
+from trilateral.trilateralFilter2D import trilateral_filter_2d
 
 def get_data():
     x = np.linspace(-2 , 2, 100)
@@ -27,7 +23,7 @@ def get_data():
     # Z = Z.clip(0, 255).astype(np.uint8)
     # Z = np.where(Z > 70, 200, 10)
 
-    noised_Z = add_gauss_noise_2d_image(Z, 0.5)
+    noised_Z = add_gauss_noise_2d_image(Z, 3)
 
     noised_Z = noised_Z.clip(0, 255).astype(np.uint8)
 
@@ -164,4 +160,4 @@ def update_graph(graph_chosen, x_coord, y_coord):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port= 8050)
