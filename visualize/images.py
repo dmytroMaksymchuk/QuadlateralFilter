@@ -10,7 +10,7 @@ from skimage.metrics import structural_similarity as ssim
 if __name__ == '__main__':
     img = cv.imread('../images/clouds.png', cv.IMREAD_GRAYSCALE)
     sigmaSpatial = 3
-    sigmaIntensity = 5
+    sigmaIntensity = 25
     kernelSize = sigmaSpatial * 6 + 1
     noised_img = add_gauss_noise_2d_image(img, 10)
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     ssimTrilateral *= 255
 
 
-    path = '../images/clouds_3_5_10/'
+    path = '../images/clouds_3_25_10/'
 
     cv.imwrite(path + 'quadlateral.jpg', quad.astype(np.uint8))
     cv.imwrite(path + 'bilateral.jpg', bilateral)
