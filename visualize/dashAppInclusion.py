@@ -10,7 +10,6 @@ import cv2 as cv
 from QuadlateralFilter.bilateral.bilateralFilter import bilateral_filter
 from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_2d_image
 from QuadlateralFilter.quadlateral.quadlateralFilter2D import quadrateral_filter_2d
-from QuadlateralFilter.quadlateral.quadlateralFilter2DUncertainty import quadrateral_filter_2d_interp
 from QuadlateralFilter.trilateral.trilateralFilter2D import trilateral_filter_2d
 
 def get_data():
@@ -22,24 +21,28 @@ def get_data():
     Z = Z.clip(0, 180).astype(np.uint8)
 
     sigmaSpatial = 3
-    sigmaIntensity = 10
+    sigmaIntensity = 20
 
     # Z = Z.clip(0, 255).astype(np.uint8)
     # Z = np.where(Z > 70, 200, 10)
 
-    noised_Z = add_gauss_noise_2d_image(Z, 0.5)
+    # Z = cv.imread('../images/golf_snippet_low_contrast.png', cv.IMREAD_GRAYSCALE)
+
+    noised_Z = add_gauss_noise_2d_image(Z, 4)
+    # noised_Z = Z
 
     noised_Z = noised_Z.clip(0, 255).astype(np.uint8)
 
-    bilateral = cv.bilateralFilter(noised_Z, 19, sigmaIntensity, sigmaSpatial)
-    result, quad, trash = quadrateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity)
-    interp, trash, uncert = quadrateral_filter_2d_interp(noised_Z, sigmaSpatial, sigmaIntensity, interpolation=True)
+    bilateral = cv.bilateralFilter(noised_Z, 31, sigmaIntensity, sigmaSpatial)
+    result, quad, uncert = quadrateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity)
+    inclusion005 = quadrateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity, inclusion_threshold=0.05)[0].clip(0, 255).astype(np.uint8)
+    inclusion01 = quadrateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity, inclusion_threshold=0.1)[0].clip(0, 255).astype(np.uint8)
+    inclusion03 = quadrateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity, inclusion_threshold=0.2)[0].clip(0, 255).astype(np.uint8)
     result = result.clip(0, 255).astype(np.uint8)
-    interp = interp.clip(0, 255).astype(np.uint8)
 
     trilat = trilateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity).clip(0, 255).astype(np.uint8)
 
-    return Z, noised_Z, bilateral, trilat, result, quad, uncert, interp
+    return Z, noised_Z, bilateral, trilat, result, quad, inclusion005, inclusion01, inclusion03
 
 
 def get_fig(z_data, diffGraph=False, uncert=False):
@@ -70,20 +73,26 @@ def get_option_z_data(curr_graph_option):
         z_data = filtered
     elif curr_graph_option == 'diff':
         z_data = np.abs(filtered.astype(np.float32) - original)
-    elif curr_graph_option == 'diff_interp':
-        z_data = np.abs(interp.astype(np.float32) - original)
     elif curr_graph_option == 'diff_trilat':
         z_data = np.abs(trilat.astype(np.float32) - original)
+    elif curr_graph_option == 'diff_bilateral':
+        z_data = np.abs(bilateral.astype(np.float32) - original)
     elif curr_graph_option == 'trilateral':
         z_data = trilat
     elif curr_graph_option == 'bilateral':
         z_data = bilateral
-    elif curr_graph_option == 'diff_bilateral':
-        z_data = np.abs(bilateral.astype(np.float32) - original)
-    elif curr_graph_option == 'uncert':
-        z_data = uncert
-    elif curr_graph_option == 'interp':
-        z_data = interp
+    elif curr_graph_option == 'incl05':
+        z_data = inclusion05
+    elif curr_graph_option == 'incl2':
+        z_data = inclusion2
+    elif curr_graph_option == 'incl5':
+        z_data = inclusion5
+    elif curr_graph_option == 'diff_incl05':
+        z_data = np.abs(inclusion05.astype(np.float32) - original)
+    elif curr_graph_option == 'diff_incl2':
+        z_data = np.abs(inclusion2.astype(np.float32) - original)
+    elif curr_graph_option == 'diff_incl5':
+        z_data = np.abs(inclusion5.astype(np.float32) - original)
     else:
         z_data = original
     return z_data
@@ -132,13 +141,16 @@ def update_figure_coord(x_coord, y_coord, z_data):
     return fig
 
 
-original, noised, bilateral, trilat, filtered, quad, uncert, interp = get_data()
+original, noised, bilateral, trilat, filtered, quad, inclusion05, inclusion2, inclusion5 = get_data()
 app = Dash()
 app.layout = html.Div([
     html.Div([
         dcc.Input(id='x-coord', type='number', placeholder='Enter X Coordinate'),
         dcc.Input(id='y-coord', type='number', placeholder='Enter Y Coordinate'),
-        dcc.RadioItems(options=['original', 'noise', 'bilateral', 'diff_bilateral', 'trilateral', 'diff_trilat', 'filtered', 'diff', 'uncert', 'interp', 'diff_interp'], value='original', id='choose-graph'),
+        dcc.RadioItems(options=['original', 'noise', 'bilateral', 'diff_bilateral',
+                                'trilateral', 'diff_trilat', 'filtered', 'diff',
+                                'incl05', 'incl2', 'incl5', 'diff_incl05', 'diff_incl2', 'diff_incl5'],
+                       value='original', id='choose-graph'),
         dcc.Graph(id='elevation-graph', figure=get_fig(original))
     ])
 ])
