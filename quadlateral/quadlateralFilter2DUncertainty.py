@@ -106,3 +106,39 @@ def quadrateral_filter_2d_interp(img, sigma_spatial, sigma_intensity=10, interpo
 
     return filtered_img, quad_planes, uncert
 
+import cv2 as cv
+if __name__ == '__main__':
+    originalImage = cv.imread('../images/statue.png', cv.IMREAD_GRAYSCALE)
+    noisedImage = add_gauss_noise_2d_image(originalImage, 10)
+
+    filteredImageInterp, quad, uncert = quadrateral_filter_2d_interp(noisedImage, 10, 30, interpolation=True)
+    filteredImageInterp = filteredImageInterp.clip(0, 255).astype(np.uint8)
+
+    filteredImage, quad2, uncert2 = quadrateral_filter_2d_interp(noisedImage, 10, 30, interpolation=False)
+    filteredImage= filteredImage.clip(0, 255).astype(np.uint8)
+
+    bilateral = cv.bilateralFilter(noisedImage, math.ceil(10*1.5) * 2 + 1, 30, 10)
+
+
+    plt.imshow(uncert, cmap='hot', interpolation='nearest')
+    plt.colorbar()  # Show color scale
+    plt.title('Uncertainty')
+    plt.xlabel('X-axis label')
+    plt.ylabel('Y-axis label')
+    plt.show()
+
+
+    psnrInterp = calc_psnr(originalImage, filteredImageInterp.astype(np.uint8))
+    psnr = calc_psnr(originalImage, filteredImage.astype(np.uint8))
+
+
+
+
+    print(f'PSNR with interpolation: {psnrInterp}')
+    print(f'PSNR without interpolation: {psnr}')
+
+
+    path = '../images/statue/uncertainty/'
+    cv.imwrite(path + 'filteredInterp.jpg', filteredImageInterp)
+    cv.imwrite(path + 'filtered.jpg', filteredImage)
+    cv.imwrite(path + 'bilateral.jpg', bilateral)

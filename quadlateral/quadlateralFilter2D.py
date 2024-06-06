@@ -15,7 +15,7 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
     filtered_img = np.zeros_like(img).astype(np.float32)
 
     # Generate spatial kernel
-    kernel_size = math.ceil(3 * sigma_spatial)
+    kernel_size = math.ceil(1.5 * sigma_spatial)
     X, Y = np.meshgrid(np.arange(-kernel_size, kernel_size + 1), np.arange(-kernel_size, kernel_size + 1))
     spatial_kernel = gaussian_kernel_2d(sigma_spatial, np.sqrt(X ** 2 + Y ** 2))
 
@@ -83,7 +83,7 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
             if i < 1:
                 uncertainty = 0
             else:
-                uncertainty = 1/(1 + math.e ** ((2*(np.log10(norm_factor) - np.mean(k_vals[:i]))/np.std(k_vals[:i])) + 1.5))
+                uncertainty = 1/(1 + math.e ** ((1.5*(np.log10(norm_factor) - np.mean(k_vals[:i]))/np.std(k_vals[:i])) + 1.5))
             uncert[i][j] = uncertainty
 
             kernel /= norm_factor
@@ -108,25 +108,38 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
 
 import cv2 as cv
 if __name__ == '__main__':
-    originalImage = cv.imread('../images/golf612x612_contrast_cropped.jpg', cv.IMREAD_GRAYSCALE)
-    noisedImage = add_gauss_noise_2d_image(originalImage, 5)
+    originalImage = cv.imread('../images/statue.png', cv.IMREAD_GRAYSCALE)
+    noisedImage = add_gauss_noise_2d_image(originalImage, 10)
 
-    filteredImageInterp, quad, uncert = quadrateral_filter_2d(noisedImage, 3, 30, interpolation=True)
+    filteredImageInterp, quad, uncert = quadrateral_filter_2d(noisedImage, 8, 30, interpolation=True)
+    filteredImageInterp = filteredImageInterp.clip(0, 255).astype(np.uint8)
 
-    filteredImage, quad, uncert2 = quadrateral_filter_2d(noisedImage, 3, 30, interpolation=False)
-
-    psnrInterp = calc_psnr(originalImage, filteredImageInterp.astype(np.uint8))
-    psnr = calc_psnr(originalImage, filteredImage.astype(np.uint8))
-
-    print(f'PSNR with interpolation: {psnrInterp}')
-    print(f'PSNR without interpolation: {psnr}')
+    # filteredImage, quad2, uncert2 = quadrateral_filter_2d(noisedImage, 10, 30, interpolation=False)
+    # filteredImage= filteredImage.clip(0, 255).astype(np.uint8)
+    #
+    # bilateral = cv.bilateralFilter(noisedImage, math.ceil(10*1.5) * 2 + 1, 30, 10)
 
 
-    plt.imshow(filteredImage, cmap='gray', interpolation='nearest')
+    plt.imshow(uncert, cmap='hot', interpolation='nearest')
     plt.colorbar()  # Show color scale
     plt.title('Uncertainty')
     plt.xlabel('X-axis label')
     plt.ylabel('Y-axis label')
-
-    # Show the plot
+    plt.savefig('../images/statue/uncertainty/uncertainty.jpg')
     plt.show()
+
+
+    # psnrInterp = calc_psnr(originalImage, filteredImageInterp.astype(np.uint8))
+    # psnr = calc_psnr(originalImage, filteredImage.astype(np.uint8))
+
+
+
+    #
+    # print(f'PSNR with interpolation: {psnrInterp}')
+    # print(f'PSNR without interpolation: {psnr}')
+    #
+    #
+    # path = '../images/statue/uncertainty/'
+    # cv.imwrite(path + 'filteredInterp.jpg', filteredImageInterp)
+    # cv.imwrite(path + 'filtered.jpg', filteredImage)
+    # cv.imwrite(path + 'bilateral.jpg', bilateral)

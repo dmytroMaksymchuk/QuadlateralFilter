@@ -11,7 +11,7 @@ def increase_contrast(image_path, output_path, factor):
         img_enhanced.save(output_path)
 
 if __name__ == '__main__':
-    path = '../images/clouds_8_10_10/'
-    increase_contrast(path + 'diff_bilateral.jpg', path + 'diff_bilateral_contrast.jpg', 60.0)
-    increase_contrast(path + 'diff_quad.jpg', path + 'diff_quad_contrast.jpg', 60.0)
-    increase_contrast(path + 'diff_trilateral.jpg', path + 'diff_trilateral_contrast.jpg', 60.0)
+    path = '../images/statue/'
+    increase_contrast(path + 'diff_bilateral.jpg', path + 'diff_bilateral_contrast.jpg', 20.0)
+    increase_contrast(path + 'diff_quad.jpg', path + 'diff_quad_contrast.jpg', 20.0)
+    increase_contrast(path + 'diff_trilateral.jpg', path + 'diff_trilateral_contrast.jpg', 20.0)

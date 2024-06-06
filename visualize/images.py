@@ -1,3 +1,5 @@
+import math
+
 import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
@@ -8,19 +10,16 @@ from trilateral.trilateralFilter2D import trilateral_filter_2d
 from skimage.metrics import structural_similarity as ssim
 
 if __name__ == '__main__':
-    img = cv.imread('../images/clouds.png', cv.IMREAD_GRAYSCALE)
+    img = cv.imread('../images/statue.png', cv.IMREAD_GRAYSCALE)
 
-    sigmaSpatial = 8
-    sigmaIntensity = 25
+    sigmaSpatial = 10
+    sigmaIntensity = 40
 
-    kernelSize = sigmaSpatial * 6 + 1
+    kernelSize = math.ceil(sigmaSpatial * 1.5) * 2 + 1
     noised_img = add_gauss_noise_2d_image(img, 10)
 
-    quad = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity)[0]
+    quad = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity, interpolation=True)[0]
     quad = quad.clip(0, 255).astype(np.uint8)
-
-    quadInclud = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity, inclusion_threshold=0.01)[0]
-    quadInclud = quadInclud.clip(0, 255).astype(np.uint8)
 
     trilateral = trilateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity)
     trilateral = trilateral.clip(0, 255).astype(np.uint8)
@@ -34,14 +33,12 @@ if __name__ == '__main__':
     print("Diff Bilateral and Original: ", np.mean((bilateral.astype(np.float32) - img) ** 2))
     print("Diff Trilateral and Original: ", np.mean((trilateral.astype(np.float32) - img) ** 2))
     print("Diff Gaussian and Original: ", np.mean((gaussian.astype(np.float32) - img) ** 2))
-    print("Diff QuadInclud and Original: ", np.mean((quadInclud.astype(np.float32) - img) ** 2))
 
     print("SSIM results:")
     print("Quadlateral: ", ssim(img, quad, data_range=quad.max() - quad.min()))
     print("Bilateral: ", ssim(img, bilateral, data_range=bilateral.max() - bilateral.min()))
     print("Trilateral: ", ssim(img, trilateral, data_range=trilateral.max() - trilateral.min()))
     print("Gaussian: ", ssim(img, gaussian, data_range=gaussian.max() - gaussian.min()))
-    print("QuadInclud: ", ssim(img, quadInclud, data_range=quadInclud.max() - quadInclud.min()))
 
     num, ssimQuad = ssim(img, quad, data_range=quad.max() - quad.min(), full=True)
     num2, ssimBilateral = ssim(img, bilateral, data_range=bilateral.max() - bilateral.min(), full=True)
@@ -52,22 +49,20 @@ if __name__ == '__main__':
     ssimTrilateral *= 255
 
 
-    path = '../images/clouds_8_25_10_incl/'
+    path = '../images/statue/garbage/'
 
     cv.imwrite(path + 'quadlateral.jpg', quad.astype(np.uint8))
     cv.imwrite(path + 'bilateral.jpg', bilateral)
     cv.imwrite(path + 'trilateral.jpg', trilateral.astype(np.uint8))
     cv.imwrite(path + 'gaussian.jpg', gaussian)
     cv.imwrite(path + 'noised.jpg', noised_img.astype(np.uint8))
-    cv.imwrite(path + 'diff_quad.jpg', np.abs(quad.astype(np.float32) - noised_img).astype(np.uint8))
-    cv.imwrite(path + 'diff_bilateral.jpg', np.abs(bilateral.astype(np.float32) - noised_img).astype(np.uint8))
-    cv.imwrite(path + 'diff_trilateral.jpg', np.abs(trilateral.astype(np.float32) - noised_img).astype(np.uint8))
+    cv.imwrite(path + 'diff_quad.jpg', np.abs(quad.astype(np.float32) - img).astype(np.uint8))
+    cv.imwrite(path + 'diff_bilateral.jpg', np.abs(bilateral.astype(np.float32) - img).astype(np.uint8))
+    cv.imwrite(path + 'diff_trilateral.jpg', np.abs(trilateral.astype(np.float32) - img).astype(np.uint8))
     cv.imwrite(path + 'diff_quad_bilateral.jpg', np.abs(quad.astype(np.float32) - bilateral).astype(np.uint8))
     cv.imwrite(path + 'ssim_quad.jpg', ssimQuad.astype(np.uint8))
     cv.imwrite(path + 'ssim_bilateral.jpg', ssimBilateral.astype(np.uint8))
     cv.imwrite(path + 'ssim_trilateral.jpg', ssimTrilateral.astype(np.uint8))
-    cv.imwrite(path + 'quadInclud.jpg', quadInclud.astype(np.uint8))
-    cv.imwrite(path + 'diff_quadInclud.jpg', np.abs(quadInclud.astype(np.float32) - noised_img).astype(np.uint8))
 
     cv.waitKey(0)
 

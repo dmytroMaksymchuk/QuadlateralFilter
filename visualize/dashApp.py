@@ -1,4 +1,6 @@
 # Import packages
+import math
+
 import numpy as np
 from dash import Dash, html, dash_table, dcc, callback, Output, Input, dash, ctx
 import plotly.graph_objects as go
@@ -15,9 +17,10 @@ def get_data():
     X, Y = np.meshgrid(x, y)
 
     Z = np.cos(X) * np.cos(Y) * 250
-    Z = Z.clip(0, 180).astype(np.uint8)
+    # Z = Z.clip(0, 180).astype(np.uint8)
+    Z = Z.clip(0, 255).astype(np.uint8)
 
-    sigmaSpatial = 3
+    sigmaSpatial = 6
     sigmaIntensity = 10
 
     # Z = Z.clip(0, 255).astype(np.uint8)
@@ -93,7 +96,7 @@ def update_figure_coord(x_coord, y_coord, z_data):
     y = float(y_coord)
     z = quad[int(y), int(x)]  # Getting the corresponding z value from the dataset
 
-    kernel_size = 3 * 3
+    kernel_size = math.ceil(6 * 1.5)
     xLB = max(int(x) - kernel_size, 0)
     yLB = max(int(y) - kernel_size, 0)
     xUB = min(int(x) + kernel_size, quad.shape[1])
