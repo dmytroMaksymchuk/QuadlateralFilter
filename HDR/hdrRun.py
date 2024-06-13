@@ -14,8 +14,9 @@ def local_tonemap(hdr_image, s, sigma_spatial, sigma_intensity):
     color = (hdr_image.T / intensity.T).T
 
     # REPLACE BY YOUR FILTER
-    base_layer = quadrateral_filter_2d(intensity, sigma_spatial, sigma_intensity)
-    # base_layer = cv2.bilateralFilter(intensity, math.ceil(sigma_spatial*1.5)*2, sigma_intensity, sigma_spatial)
+    base_layer = trilateral_filter_2d(intensity, sigma_spatial, sigma_intensity)
+    #base_layer = quadrateral_filter_2d(intensity, sigma_spatial, sigma_intensity)[0]
+    #base_layer = cv2.bilateralFilter(intensity, math.ceil(sigma_spatial*1.5)*2, sigma_intensity, sigma_spatial)
     detail_layer = intensity / base_layer
 
     # Contrast reduction
@@ -32,13 +33,13 @@ if __name__ == '__main__':
     sigma_spatials = [3, 6, 10]
     sigma_intensity = [10, 30, 50]
 
-    file = 'images/nancy_church_1_resized.hdr'
+    file = 'images/mpi_atrium_1.hdr'
     hdr_image = cv2.imread(file, cv2.IMREAD_UNCHANGED)
 
     for spatial in sigma_spatials:
         for intensity in sigma_intensity:
             tonemapped_image = local_tonemap(hdr_image, s, spatial, intensity)
             tonemapped_image = np.clip(tonemapped_image, 0, 1)
-            cv2.imwrite(f"images/resultImages/church_1/church_quad_{s}_{spatial}_{intensity}.tif", tonemapped_image, [cv2.IMWRITE_TIFF_COMPRESSION, 0])
+            cv2.imwrite(f"images/resultImages/attrium/attrium_trilat_{s}_{spatial}_{intensity}.tif", tonemapped_image, [cv2.IMWRITE_TIFF_COMPRESSION, 0])
 
 
