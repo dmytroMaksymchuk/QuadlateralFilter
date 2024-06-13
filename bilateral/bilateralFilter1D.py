@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_1d
+from helpers.gaussianHelper import add_gauss_noise_1d_signal
 
 
 def gaussian_kernel_1d(sigma, x):
@@ -15,7 +15,7 @@ def bilateral_filter_1D(inp, sigma_spatial, sigma_intensity):
     filtered_inp = np.zeros_like(inp)
 
     # Generate spatial kernel
-    kernel_size = math.ceil(3 * sigma_spatial)
+    kernel_size = math.ceil(1.5 * sigma_spatial)
     spatial_kernel = gaussian_kernel_1d(sigma_spatial, np.arange(-kernel_size, kernel_size + 1))
 
     # Apply filter
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # Concatenate the two arrays
     inp = np.concatenate((const1, down, up, const2))
 
-    inp = add_gauss_noise_1d(inp, 5)
+    inp = add_gauss_noise_1d_signal(inp, 5)
 
     out = bilateral_filter_1D(inp, 20, 20)
 

@@ -12,6 +12,7 @@ from helpers.gradients import get_average_gradients
 def trilateral_filter_2d(img, sigma_spatial, sigma_intensity=10):
     # Initialize filtered image
     # Compute image dimensions
+    img = img.astype(np.float32)
     rows, cols = img.shape
 
     # Initialize filtered image

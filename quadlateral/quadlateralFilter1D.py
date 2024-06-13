@@ -3,9 +3,9 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-from QuadlateralFilter.bilateral.bilateralFilter1D import bilateral_filter_1D
-from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_1d_signal
-from QuadlateralFilter.trilateral.trilateralFilter1D import trilateral_filter
+from bilateral.bilateralFilter1D import bilateral_filter_1D
+from helpers.gaussianHelper import add_gauss_noise_1d_signal
+from trilateral.trilateralFilter1D import trilateral_filter
 
 
 def gaussian_kernel_1d(sigma, x):
@@ -27,10 +27,7 @@ def get_bilateral_derivative(inp, kernel_size, spatial_kernel, sigma_intensity):
         # delta Iin for region(X)
         shifted_region = inp[regionLB + 1:min(np.size(inp), regionUB + 1)]
 
-        if len(shifted_region) < len(region):
-            gradient_region = shifted_region - region[:len(shifted_region)]
-        else:
-            gradient_region = shifted_region - region
+        gradient_region = shifted_region - region[:len(shifted_region)]
 
         # S-kernel
         grad_s_kernel = gaussian_kernel_1d(sigma_intensity, np.abs(gradient_region - gradient_x))
@@ -67,26 +64,27 @@ def get_average_gradients(inp, kernel_size):
         average_gradients[i] = np.mean(region_gradient)
     return average_gradients
 
-def quadrateral_filter(inp, sigma_spatial):
+def quadrateral_filter(inp, sigma_spatial, sigma_intensity):
     # Initialize filtered image
     filtered_inp = np.zeros_like(inp).astype(np.float32)
     inp = inp.astype(np.float32)
 
     # Generate spatial kernel
-    kernel_size = math.ceil(sigma_spatial * 3)
+    kernel_size = math.ceil(sigma_spatial * 1.5)
     spatial_kernel = gaussian_kernel_1d(sigma_spatial, np.arange(-kernel_size, kernel_size + 1))
 
     # Compute average gradients in the neighborhood for each pixel
     average_gradients = get_average_gradients(inp, sigma_spatial)
 
     # Compute Sigma for range kernel
-    beta = 7
-    sigma_intensity = beta * np.abs(np.max(average_gradients) - np.min(average_gradients))
+    # beta = 7
+    # sigma_intensity = beta * np.abs(np.max(average_gradients) - np.min(average_gradients))
 
     first_bilateral_derivative = get_bilateral_derivative(inp, kernel_size, spatial_kernel, sigma_intensity)
     second_bilateral_derivative = get_bilateral_derivative(first_bilateral_derivative, kernel_size, spatial_kernel, sigma_intensity)
 
     # Apply filter
+    line = np.zeros_like(16)
     for i in range(np.size(inp)):
         # Define region of interest
         regionLB = max(0, i - kernel_size)
@@ -94,18 +92,10 @@ def quadrateral_filter(inp, sigma_spatial):
         region = inp[regionLB:regionUB]
         region = region.astype(np.float32)
 
-        # Compute plane
-        ax2 = second_bilateral_derivative[i] / 2 * ((np.arange(regionLB, regionUB) - i) ** 2)
-        bx = (first_bilateral_derivative[i] * (np.arange(regionLB, regionUB) - i) -
-              ((np.arange(regionLB, regionUB) - i) * second_bilateral_derivative[i] / 2))
-        c = inp[i]
+        changeX = (np.arange(regionLB, regionUB) - i)
 
-        quad_plane = ax2 + bx + c
+        quad_plane = inp[i] + first_bilateral_derivative[i] * changeX + 0.5 * second_bilateral_derivative[i] * (changeX ** 2)
 
-        # quad_plane = (inp[i] + first_bilateral_derivative[i] * (np.arange(regionLB, regionUB) - i) +
-        #             second_bilateral_derivative[i] * (np.arange(regionLB, regionUB) - i) ** 2)
-
-        # I{delta}(x, vector)
         diff_from_plane = region - quad_plane
 
         # S-kernel
@@ -121,7 +111,11 @@ def quadrateral_filter(inp, sigma_spatial):
         # Compute final value
         filtered_inp[i] = inp[i] + np.sum(diff_from_plane * kernel)
 
-    return filtered_inp
+        if(i == 0):
+            line = quad_plane
+
+
+    return filtered_inp, second_bilateral_derivative
 
 if __name__ == '__main__':
     a = 10 # coefficient of x^2
@@ -129,7 +123,7 @@ if __name__ == '__main__':
     c = 0  # constant term
 
     # Define the range of x values
-    x_values = np.linspace(-5, 5, 20).astype(float)  # Adjust the range and number of points as needed
+    x_values = np.linspace(-5, 5, 50).astype(float)  # Adjust the range and number of points as needed
 
     # Calculate the y values using the parabolic equation
     y_values = a * x_values ** 2 + b * x_values + c
@@ -138,19 +132,21 @@ if __name__ == '__main__':
     inp_original = y_values
     inp_original = inp_original.clip(0, 255)
 
-    inp = add_gauss_noise_1d_signal(inp_original, 10)
+    inp = add_gauss_noise_1d_signal(inp_original, 4)
+
+    sigma_spatial = 10
+    sigma_intensity = 50
 
 
-    out = quadrateral_filter(inp, 5)
-    out_bilat = bilateral_filter_1D(inp, 4, 50)
-    out_trilat = trilateral_filter(inp, 5)
+    out, line = quadrateral_filter(inp, sigma_spatial, sigma_intensity)
+    out_bilat = bilateral_filter_1D(inp, sigma_spatial, sigma_intensity)
+    out_trilat = trilateral_filter(inp, sigma_spatial, sigma_intensity)
 
-    plt.figure(figsize=(15, 5))
-    plt.subplot(131)
-    plt.plot(inp)
-    plt.title('Original Input')
-
-
+    out = out[5:-5]
+    out_bilat = out_bilat[5:-5]
+    out_trilat = out_trilat[5:-5]
+    inp = inp[5:-5]
+    inp_original = inp_original[5:-5]
 
 
     plt.figure(figsize=(15, 5))
@@ -164,15 +160,15 @@ if __name__ == '__main__':
 
     plt.subplot(153)
     plt.plot(out)
-    plt.title('Quad Filter Difference')
+    plt.title('Quad Filter')
 
     plt.subplot(154)
     plt.plot(out_trilat)
-    plt.title('Trilateral Filter Difference')
+    plt.title('Trilateral Filter')
 
     plt.subplot(155)
     plt.plot(out_bilat)
-    plt.title('Bilateral Filter Difference')
+    plt.title('Bilateral Filter')
 
     plt.show()
 

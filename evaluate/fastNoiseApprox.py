@@ -48,7 +48,7 @@ def fastMeanNoiseEstimation(original_image, image):
     cv2.waitKey(0)
 
     plt.figure(figsize=(10, 10))
-    plt.imshow(difference)
+    plt.imshow(difference, cmap='hot', interpolation='nearest')
     plt.colorbar()  # Show color scale
     plt.title('convolved_original')
     plt.show()
@@ -59,7 +59,7 @@ def fastMeanNoiseEstimation(original_image, image):
 if __name__ == '__main__':
     original_image = cv2.imread('../images/statue.png', cv2.IMREAD_GRAYSCALE)
     #image = add_gauss_noise_2d_image(original_image, 9)
-    image = cv2.imread('../images/statue/noise_10/spatial_8/intensity_30/noised.jpg', cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread('../images/statue/noise_10/spatial_8/intensity_30/bilateral.jpg', cv2.IMREAD_GRAYSCALE)
 
     sigma = fastMeanNoiseEstimation(original_image, image)
     print("Estimated Gaussian Noise Standard Deviation: ", sigma)

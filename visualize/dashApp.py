@@ -8,35 +8,34 @@ import cv2 as cv
 
 from helpers.gaussianHelper import add_gauss_noise_2d_image
 from quadlateral.quadlateralFilter2D import quadrateral_filter_2d
-from quadlateral.quadlateralFilter2DUncertainty import quadrateral_filter_2d_interp
 from trilateral.trilateralFilter2D import trilateral_filter_2d
 
 def get_data():
-    x = np.linspace(-2 , 2, 100)
-    y = np.linspace(-2, 2, 100)
+    x = np.linspace(-1 , 1, 100)
+    y = np.linspace(-1, 1, 100)
     X, Y = np.meshgrid(x, y)
 
-    Z = np.cos(X) * np.cos(Y) * 250
+    # Z = np.cos(X) * np.cos(Y) * 250
+    sigmoid = lambda z: 1 / (1 + np.exp(-z))
+    Z = sigmoid(100*X) * 250
     # Z = Z.clip(0, 180).astype(np.uint8)
-    Z = Z.clip(0, 255).astype(np.uint8)
 
-    sigmaSpatial = 6
-    sigmaIntensity = 10
+    sigmaSpatial = 5
+    sigmaIntensity = 15
 
-    # Z = Z.clip(0, 255).astype(np.uint8)
-    # Z = np.where(Z > 70, 200, 10)
+    Z = Z.clip(0, 200)
 
-    noised_Z = add_gauss_noise_2d_image(Z, 3)
+    noised_Z = add_gauss_noise_2d_image(Z, 4)
 
-    noised_Z = noised_Z.clip(0, 255).astype(np.uint8)
+    noised_Z = noised_Z
 
     bilateral = cv.bilateralFilter(noised_Z, 19, sigmaIntensity, sigmaSpatial)
     result, quad, trash = quadrateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity)
-    interp, trash, uncert = quadrateral_filter_2d_interp(noised_Z, sigmaSpatial, sigmaIntensity, interpolation=True)
-    result = result.clip(0, 255).astype(np.uint8)
-    interp = interp.clip(0, 255).astype(np.uint8)
+    interp, trash, uncert = quadrateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity, interpolation=True)
+    result = result.clip(0, 255)
+    interp = interp.clip(0, 255)
 
-    trilat = trilateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity).clip(0, 255).astype(np.uint8)
+    trilat = trilateral_filter_2d(noised_Z, sigmaSpatial, sigmaIntensity).clip(0, 255)
 
     return Z, noised_Z, bilateral, trilat, result, quad, uncert, interp
 

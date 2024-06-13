@@ -21,17 +21,22 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
 
     # Compute derivatives used for reconstruction
     derivative_y = get_bilateral_derivative_y(img, kernel_size, spatial_kernel, sigma_intensity)
+    print('derivative_y done')
     derivative_x = get_bilateral_derivative_x(img, kernel_size, spatial_kernel, sigma_intensity)
+    print('derivative_x done')
     derivative_xy = get_bilateral_derivative_y(derivative_x, kernel_size, spatial_kernel, sigma_intensity)
+    print('derivative_xy done')
     derivative_xx = get_bilateral_derivative_x(derivative_x, kernel_size, spatial_kernel, sigma_intensity)
+    print('derivative_xx done')
     derivative_yy = get_bilateral_derivative_y(derivative_y, kernel_size, spatial_kernel, sigma_intensity)
+    print('derivative_yy done')
 
     # Compare this plane to neighbouring pixels for range kernel
     quad_planes = np.empty((img.shape[0], img.shape[1]), dtype=object)
 
     # Apply filter
-    k_vals = np.zeros_like(img).astype(np.float32)
-    uncert = np.zeros_like(img).astype(np.float32)
+    # k_vals = np.zeros_like(img).astype(np.float32)
+    # uncert = np.zeros_like(img).astype(np.float32)
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             # Define region of interest
@@ -78,33 +83,33 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
                 kernel *= inclusion
 
             norm_factor = np.sum(kernel)
-            k_vals[i][j] = np.log10(norm_factor)
+            # k_vals[i][j] = np.log10(norm_factor)
 
             if i < 1:
                 uncertainty = 0
-            else:
-                uncertainty = 1/(1 + math.e ** ((1.5*(np.log10(norm_factor) - np.mean(k_vals[:i]))/np.std(k_vals[:i])) + 1.5))
-            uncert[i][j] = uncertainty
+            # else:
+            # #     uncertainty = 1/(1 + math.e ** ((2*(np.log10(norm_factor) - np.mean(k_vals[:i]))/np.std(k_vals[:i])) + 1.5))
+            # # uncert[i][j] = uncertainty
 
             kernel /= norm_factor
 
-            #Interpolation
-            if interpolation:
-                intensity_diff = region - img[i, j]
-                bilat_range_kernel = gaussian_kernel_2d(sigma_intensity, np.abs(intensity_diff))
-                bilat_kernel = bilat_range_kernel * spatial_kernel[
-                                max(kernel_size - i, 0):min(kernel_size + (img.shape[0] - i), (2 * kernel_size) + 1),
-                                max(kernel_size - j, 0):min(kernel_size + (img.shape[1] - j),
-                                                            (2 * kernel_size) + 1)]
-                bilat_kernel /= np.sum(bilat_kernel)
-                bilat_pixel_value = np.sum(region * bilat_kernel)
-                quad_pixel_value = img[i][j] + np.sum(diff_from_plane * kernel)
+            # #Interpolation
+            # if interpolation:
+            #     intensity_diff = region - img[i, j]
+            #     bilat_range_kernel = gaussian_kernel_2d(sigma_intensity, np.abs(intensity_diff))
+            #     bilat_kernel = bilat_range_kernel * spatial_kernel[
+            #                     max(kernel_size - i, 0):min(kernel_size + (img.shape[0] - i), (2 * kernel_size) + 1),
+            #                     max(kernel_size - j, 0):min(kernel_size + (img.shape[1] - j),
+            #                                                 (2 * kernel_size) + 1)]
+            #     bilat_kernel /= np.sum(bilat_kernel)
+            #     bilat_pixel_value = np.sum(region * bilat_kernel)
+            #     quad_pixel_value = img[i][j] + np.sum(diff_from_plane * kernel)
+            #
+            #     filtered_img[i][j] = (1 - uncertainty) * quad_pixel_value + uncertainty * bilat_pixel_value
+            # else:
+            filtered_img[i][j] = img[i][j] + np.sum(diff_from_plane * kernel)
 
-                filtered_img[i][j] = (1 - uncertainty) * quad_pixel_value + uncertainty * bilat_pixel_value
-            else:
-                filtered_img[i][j] = img[i][j] + np.sum(diff_from_plane * kernel)
-
-    return filtered_img, quad_planes, uncert
+    return filtered_img, quad_planes, None
 
 import cv2 as cv
 if __name__ == '__main__':

@@ -3,22 +3,22 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-from QuadlateralFilter.bilateral.bilateralFilter1D import bilateral_filter_1D
-from QuadlateralFilter.helpers.gaussianHelper import add_gauss_noise_1d
+from bilateral.bilateralFilter1D import bilateral_filter_1D
+from helpers.gaussianHelper import add_gauss_noise_1d_signal
 
 
 def gaussian_kernel_1d(sigma, x):
     return (1 / (math.sqrt(2 * math.pi) * sigma)) * np.exp(-x ** 2 / (2 * sigma ** 2))
 
 
-def trilateral_filter(inp, sigma_spatial):
+def trilateral_filter(inp, sigma_spatial, sigma_intensity):
     # Initialize filtered image
     filtered_inp = np.zeros_like(inp)
     filtered_inp = filtered_inp.astype(np.float32)
     inp = inp.astype(np.float32)
 
     # Generate spatial kernel
-    kernel_size = math.ceil(sigma_spatial * 3)
+    kernel_size = math.ceil(sigma_spatial * 1.5)
     spatial_kernel = gaussian_kernel_1d(sigma_spatial, np.arange(-kernel_size, kernel_size + 1))
 
     # Compute average gradients in the neighborhood for each pixel
@@ -42,8 +42,8 @@ def trilateral_filter(inp, sigma_spatial):
         average_gradients[i] = np.mean(region_gradient)
 
     # Compute Sigma for range kernel
-    beta = 7
-    sigma_intensity = beta * np.abs(np.max(average_gradients) - np.min(average_gradients))
+    # beta = 7
+    # sigma_intensity = beta * np.abs(np.max(average_gradients) - np.min(average_gradients))
     R = sigma_intensity
 
     gradient_vectors = np.zeros_like(inp).astype(np.float32)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     # Concatenate the two arrays
     inp_original = np.concatenate((const1, down, up, const2))
 
-    inp = add_gauss_noise_1d(inp_original, 3)
+    inp = add_gauss_noise_1d_signal(inp_original, 3)
 
     out = trilateral_filter(inp, 3)
     out_bilat = bilateral_filter_1D(out, 3, 30)
