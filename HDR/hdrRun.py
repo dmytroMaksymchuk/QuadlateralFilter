@@ -14,14 +14,21 @@ def local_tonemap(hdr_image, s, sigma_spatial, sigma_intensity):
     color = (hdr_image.T / intensity.T).T
 
     # REPLACE BY YOUR FILTER
-    base_layer = quadrateral_filter_2d(intensity, sigma_spatial, sigma_intensity)
-    # base_layer = cv2.bilateralFilter(intensity, math.ceil(sigma_spatial*1.5)*2, sigma_intensity, sigma_spatial)
+    #base_layer = quadrateral_filter_2d(intensity, sigma_spatial, sigma_intensity, interpolation=True)[0]
+    #base_layer = trilateral_filter_2d(intensity, sigma_spatial, sigma_intensity)
+    base_layer = cv2.bilateralFilter(intensity, math.ceil(sigma_spatial*1.5)*2, sigma_intensity, sigma_spatial)
     detail_layer = intensity / base_layer
+
+    plt.figure()
+    plt.imshow(detail_layer, cmap='hot', vmin=0, vmax=6)
+    plt.colorbar()
+    plt.show()
 
     # Contrast reduction
     base_layer = np.sqrt(s * (base_layer - np.min(base_layer)) / (np.max(base_layer) - np.min(base_layer)))
 
     intensity = base_layer * detail_layer
+    intensity = np.clip(intensity, 0, 1)
 
     tonemapped_image = (intensity.T * color.T).T
 
@@ -29,8 +36,10 @@ def local_tonemap(hdr_image, s, sigma_spatial, sigma_intensity):
 
 if __name__ == '__main__':
     s = 3
-    sigma_spatials = [3, 6, 10]
-    sigma_intensity = [10, 30, 50]
+    # sigma_spatials = [3, 6, 10]
+    # sigma_intensity = [10, 30, 50]
+    sigma_spatials = [10]
+    sigma_intensity = [50]
 
     file = 'images/nancy_church_1_resized.hdr'
     hdr_image = cv2.imread(file, cv2.IMREAD_UNCHANGED)
@@ -39,6 +48,6 @@ if __name__ == '__main__':
         for intensity in sigma_intensity:
             tonemapped_image = local_tonemap(hdr_image, s, spatial, intensity)
             tonemapped_image = np.clip(tonemapped_image, 0, 1)
-            cv2.imwrite(f"images/resultImages/church_1/church_quad_{s}_{spatial}_{intensity}.tif", tonemapped_image, [cv2.IMWRITE_TIFF_COMPRESSION, 0])
+            cv2.imwrite(f"images/resultImages/church_1/church_quad_uncert_{s}_{spatial}_{intensity}.tif", tonemapped_image, [cv2.IMWRITE_TIFF_COMPRESSION, 0])
 
 

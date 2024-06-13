@@ -17,7 +17,7 @@ def get_data():
 
     # Z = np.cos(X) * np.cos(Y) * 250
     sigmoid = lambda z: 1 / (1 + np.exp(-z))
-    Z = sigmoid(100*X) * 250
+    Z = sigmoid(50*X) * 250
     # Z = Z.clip(0, 180).astype(np.uint8)
 
     sigmaSpatial = 5
@@ -95,7 +95,7 @@ def update_figure_coord(x_coord, y_coord, z_data):
     y = float(y_coord)
     z = quad[int(y), int(x)]  # Getting the corresponding z value from the dataset
 
-    kernel_size = math.ceil(6 * 1.5)
+    kernel_size = math.ceil(5 * 1.5)
     xLB = max(int(x) - kernel_size, 0)
     yLB = max(int(y) - kernel_size, 0)
     xUB = min(int(x) + kernel_size, quad.shape[1])
