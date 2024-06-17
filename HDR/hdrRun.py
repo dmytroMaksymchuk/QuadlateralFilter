@@ -21,8 +21,6 @@ def local_tonemap(hdr_image, s, sigma_spatial, sigma_intensity):
 
     large = np.where(detail_layer > 100)
 
-
-
     # Contrast reduction
     base_layer = np.sqrt(s * (base_layer - np.min(base_layer)) / (np.max(base_layer) - np.min(base_layer)))
 
@@ -53,8 +51,6 @@ if __name__ == '__main__':
     for spatial in sigma_spatials:
         for intensity in sigma_intensity:
             tonemapped_image = local_tonemap(hdr_image, s, spatial, intensity)
-
-
             # tonemapped_image = np.clip(tonemapped_image, 0, 1)
             cv2.imwrite(f"images/resultImages/memorial/memorial_trilat_uncert_{s}_{spatial}_{intensity}.tif", tonemapped_image, [cv2.IMWRITE_TIFF_COMPRESSION, 0])
 
