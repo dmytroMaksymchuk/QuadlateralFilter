@@ -5,8 +5,8 @@ from matplotlib import pyplot as plt
 from visualize.combineImages import combineImages
 
 if __name__ == '__main__':
-    img1 = cv.imread('../HDR/images/test/quad_3.png', cv.IMREAD_GRAYSCALE)
-    img2 = cv.imread('../HDR/images/test/bilat_3.png', cv.IMREAD_GRAYSCALE)
+    img1 = cv.imread('../HDR/images/test/attrium_quad.png', cv.IMREAD_GRAYSCALE)
+    img2 = cv.imread('../HDR/images/test/attrium_trilat.png', cv.IMREAD_GRAYSCALE)
 
     cv.imshow('img1', img1)
     cv.imshow('img2', img2)

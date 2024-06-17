@@ -15,7 +15,7 @@ def bilateral_filter(img, sigma_spatial, sigma_intensity):
     filtered_img = np.zeros_like(img)
 
     # Generate spatial kernel
-    kernel_size = math.ceil(3 * sigma_spatial)
+    kernel_size = math.ceil(1.5 * sigma_spatial)
     X, Y = np.meshgrid(np.arange(-kernel_size, kernel_size + 1), np.arange(-kernel_size, kernel_size + 1))
     spatial_kernel = gaussian_kernel(sigma_spatial, np.sqrt(X ** 2 + Y ** 2))
 

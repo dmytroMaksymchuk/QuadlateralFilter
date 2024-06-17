@@ -7,7 +7,7 @@ def resizeImage(image, width, height):
 
 
 if __name__ == '__main__':
-    image = cv.imread('images/lonely_road_afternoon_puresky_1k.hdr', cv.IMREAD_UNCHANGED)
-    resized_image = resizeImage(image, 0.6, 0.6)
+    image = cv.imread('images/memorial.hdr', cv.IMREAD_UNCHANGED)
+    resized_image = resizeImage(image, 0.7, 0.7)
     print(resized_image.shape)
-    cv.imwrite('images/lonely_road_afternoon_puresky_1k_resized.hdr', resized_image, [cv.IMWRITE_HDR_COMPRESSION_RLE, 0])
+    cv.imwrite('images/memorial_resized.hdr', resized_image, [cv.IMWRITE_HDR_COMPRESSION_RLE, 0])

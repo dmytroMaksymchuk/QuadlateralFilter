@@ -72,16 +72,6 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
                                 max(kernel_size - j, 0):min(kernel_size + (img.shape[1] - j),
                                                             (2 * kernel_size) + 1)]
 
-            if inclusion_threshold != -1:
-                if i == 30 and j == 30:
-                    print('here')
-                R = inclusion_threshold
-                # Neighborhood inclusion kernel
-                inclusion = distance(
-                    derivative_yy[regionLB[0]:regionUB[0], regionLB[1]:regionUB[1]] - derivative_yy[i][j],
-                    derivative_xx[regionLB[0]:regionUB[0], regionLB[1]:regionUB[1]] - derivative_xx[i][j]) < R
-                kernel *= inclusion
-
             norm_factor = np.sum(kernel)
             k_vals[i][j] = np.log10(norm_factor)
 
