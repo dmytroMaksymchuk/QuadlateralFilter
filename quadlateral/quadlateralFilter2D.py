@@ -32,11 +32,11 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
     print('derivative_yy done')
 
     # Compare this plane to neighbouring pixels for range kernel
-    quad_planes = np.empty((img.shape[0], img.shape[1]), dtype=object)
+    #quad_planes = np.empty((img.shape[0], img.shape[1]), dtype=object)
 
     # Apply filter
-    k_vals = np.zeros_like(img).astype(np.float32)
-    uncert = np.zeros_like(img).astype(np.float32)
+    #k_vals = np.zeros_like(img).astype(np.float32)
+    #uncert = np.zeros_like(img).astype(np.float32)
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             # Define region of interest
@@ -58,7 +58,7 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
             quad_plane += img[i][j]
             quad_plane += 0.5 * derivative_xx[i][j] * change_X ** 2 + 0.5 * derivative_yy[i][j] * change_Y ** 2 + \
                           derivative_xy[i][j] * change_X * change_Y
-            quad_planes[i][j] = quad_plane
+            #quad_planes[i][j] = quad_plane
 
             # I{delta}(x, vector)
             diff_from_plane = region - quad_plane
@@ -73,41 +73,45 @@ def quadrateral_filter_2d(img, sigma_spatial, sigma_intensity=10, interpolation=
                                                             (2 * kernel_size) + 1)]
 
             norm_factor = np.sum(kernel)
-            k_vals[i][j] = np.log10(norm_factor)
+            #k_vals[i][j] = np.log10(norm_factor)
 
-            if i < 1:
-                uncertainty = 0
-            else:
-                 uncertainty = 1/(1 + math.e ** ((2*(np.log10(norm_factor) - np.mean(k_vals[:i]))/np.std(k_vals[:i])) + 1.5))
-            uncert[i][j] = uncertainty
+            # if i < 1:
+            #     uncertainty = 0
+            # else:
+            #      uncertainty = 1/(1 + math.e ** ((2*(np.log10(norm_factor) - np.mean(k_vals[:i]))/np.std(k_vals[:i])) + 1.5))
+            #uncert[i][j] = uncertainty
 
             kernel /= norm_factor
 
             #Interpolation
-            if interpolation:
-                intensity_diff = region - img[i, j]
-                bilat_range_kernel = gaussian_kernel_2d(sigma_intensity, np.abs(intensity_diff))
-                bilat_kernel = bilat_range_kernel * spatial_kernel[
-                                max(kernel_size - i, 0):min(kernel_size + (img.shape[0] - i), (2 * kernel_size) + 1),
-                                max(kernel_size - j, 0):min(kernel_size + (img.shape[1] - j),
-                                                            (2 * kernel_size) + 1)]
-                bilat_kernel /= np.sum(bilat_kernel)
-                bilat_pixel_value = np.sum(region * bilat_kernel)
-                quad_pixel_value = img[i][j] + np.sum(diff_from_plane * kernel)
+            # if interpolation:
+            #     intensity_diff = region - img[i, j]
+            #     bilat_range_kernel = gaussian_kernel_2d(sigma_intensity, np.abs(intensity_diff))
+            #     bilat_kernel = bilat_range_kernel * spatial_kernel[
+            #                     max(kernel_size - i, 0):min(kernel_size + (img.shape[0] - i), (2 * kernel_size) + 1),
+            #                     max(kernel_size - j, 0):min(kernel_size + (img.shape[1] - j),
+            #                                                 (2 * kernel_size) + 1)]
+            #     bilat_kernel /= np.sum(bilat_kernel)
+            #     bilat_pixel_value = np.sum(region * bilat_kernel)
+            #     quad_pixel_value = img[i][j] + np.sum(diff_from_plane * kernel)
+            #
+            #     filtered_img[i][j] = (1 - uncertainty) * quad_pixel_value + uncertainty * bilat_pixel_value
+            # else:
+            filtered_img[i][j] = img[i][j] + np.sum(diff_from_plane * kernel)
 
-                filtered_img[i][j] = (1 - uncertainty) * quad_pixel_value + uncertainty * bilat_pixel_value
-            else:
-                filtered_img[i][j] = img[i][j] + np.sum(diff_from_plane * kernel)
-
-    return filtered_img, quad_planes, None
+    return filtered_img, None, None
 
 import cv2 as cv
 if __name__ == '__main__':
     originalImage = cv.imread('../images/statue.png', cv.IMREAD_GRAYSCALE)
     noisedImage = add_gauss_noise_2d_image(originalImage, 10)
 
-    filteredImageInterp, quad, uncert = quadrateral_filter_2d(noisedImage, 8, 30, interpolation=True)
+    filteredImageInterp, quad, uncert = quadrateral_filter_2d(noisedImage, 8, 30)
     filteredImageInterp = filteredImageInterp.clip(0, 255).astype(np.uint8)
+
+    cv.imshow('Original', filteredImageInterp)
+    cv.imshow('Noised', noisedImage)
+    cv.waitKey(0)
 
     # filteredImage, quad2, uncert2 = quadrateral_filter_2d(noisedImage, 10, 30, interpolation=False)
     # filteredImage= filteredImage.clip(0, 255).astype(np.uint8)
@@ -115,13 +119,13 @@ if __name__ == '__main__':
     # bilateral = cv.bilateralFilter(noisedImage, math.ceil(10*1.5) * 2 + 1, 30, 10)
 
 
-    plt.imshow(uncert, cmap='hot', interpolation='nearest')
-    plt.colorbar()  # Show color scale
-    plt.title('Uncertainty')
-    plt.xlabel('X-axis label')
-    plt.ylabel('Y-axis label')
-    plt.savefig('../images/statue/uncertainty/uncertainty.jpg')
-    plt.show()
+    # plt.imshow(uncert, cmap='hot', interpolation='nearest')
+    # plt.colorbar()  # Show color scale
+    # plt.title('Uncertainty')
+    # plt.xlabel('X-axis label')
+    # plt.ylabel('Y-axis label')
+    # plt.savefig('../images/statue/uncertainty/uncertainty.jpg')
+    # plt.show()
 
 
     # psnrInterp = calc_psnr(originalImage, filteredImageInterp.astype(np.uint8))

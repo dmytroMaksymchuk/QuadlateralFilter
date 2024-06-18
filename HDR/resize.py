@@ -7,7 +7,7 @@ def resizeImage(image, width, height):
 
 
 if __name__ == '__main__':
-    image = cv.imread('images/memorial.hdr', cv.IMREAD_UNCHANGED)
-    resized_image = resizeImage(image, 0.7, 0.7)
+    image = cv.imread('images/bigFogMap.hdr', cv.IMREAD_UNCHANGED)
+    resized_image = resizeImage(image, 0.5, 0.5)
     print(resized_image.shape)
-    cv.imwrite('images/memorial_resized.hdr', resized_image, [cv.IMWRITE_HDR_COMPRESSION_RLE, 0])
+    cv.imwrite('images/fog_resized.hdr', resized_image, [cv.IMWRITE_HDR_COMPRESSION_RLE, 0])

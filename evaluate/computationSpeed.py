@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # test bilateral trilateral and quadlateral filter on speed with images
 
     path = '../images/speed/'
-    images = ['statue_243x269.png', 'road_1600x1152.jpg', 'clouds_640x427.jpg']
+    images = ['statue_243x269.png', 'clouds_640x427.jpg', 'road_1600x1152.jpg']
     sigma_spatial = 3
     sigma_intensity = 30
 

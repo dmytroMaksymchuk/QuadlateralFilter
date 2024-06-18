@@ -14,8 +14,8 @@ def local_tonemap(hdr_image, s, sigma_spatial, sigma_intensity):
     color = (hdr_image.T / intensity.T).T
 
     # REPLACE BY YOUR FILTER
-    #base_layer = quadrateral_filter_2d(intensity, sigma_spatial, sigma_intensity)[0]
-    base_layer = trilateral_filter_2d(intensity, sigma_spatial, sigma_intensity)
+    base_layer = quadrateral_filter_2d(intensity, sigma_spatial, sigma_intensity)[0]
+    #base_layer = trilateral_filter_2d(intensity, sigma_spatial, sigma_intensity)
     #base_layer = cv2.bilateralFilter(intensity, math.ceil(sigma_spatial*1.5)*2, sigma_intensity, sigma_spatial)
     detail_layer = (intensity / base_layer)
 
@@ -39,19 +39,19 @@ def local_tonemap(hdr_image, s, sigma_spatial, sigma_intensity):
     return tonemapped_image
 
 if __name__ == '__main__':
-    s = 20
-    sigma_spatials = [3, 8, 10]
-    sigma_intensity = [0.005, 0.01, 0.02, 0.4, 0.5]
+    s = 1
+    sigma_spatials = [6]
+    sigma_intensity = [0.01]
     # sigma_spatials = [10]
     # sigma_intensity = [0.01]
 
-    file = 'images/memorial_resized.hdr'
+    file = 'images/mpi_office_resized.hdr'
     hdr_image = cv2.imread(file, cv2.IMREAD_UNCHANGED)
 
     for spatial in sigma_spatials:
         for intensity in sigma_intensity:
             tonemapped_image = local_tonemap(hdr_image, s, spatial, intensity)
             # tonemapped_image = np.clip(tonemapped_image, 0, 1)
-            cv2.imwrite(f"images/resultImages/memorial/memorial_trilat_uncert_{s}_{spatial}_{intensity}.tif", tonemapped_image, [cv2.IMWRITE_TIFF_COMPRESSION, 0])
+            cv2.imwrite(f"images/resultImages/mpi_office/office_quad_{s}_{spatial}_{intensity}.tif", tonemapped_image, [cv2.IMWRITE_TIFF_COMPRESSION, 0])
 
 

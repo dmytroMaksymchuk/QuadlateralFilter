@@ -18,7 +18,7 @@ def convert_tif_to_png(input_file_path, output_file_path):
 
 if __name__ == '__main__':
     # Example usage
-    input_file_path = 'images/resultImages/church_1/church_bilat_3_6_30.tif'
-    output_file_path = 'images/resultImages/church_1/png/church_bilat_3_6_30.png'
+    input_file_path = 'images/resultImages/compareImages/memorial_bilat_uncert_10_6_0.1.tif'
+    output_file_path = 'images/resultImages/compareImages/memorial_bilat_uncert_10_6_0.1.png'
 
     convert_tif_to_png(input_file_path, output_file_path)
