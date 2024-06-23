@@ -55,6 +55,7 @@ if __name__ == '__main__':
         ax.set_ylabel('Contrast')
         ax.legend()
         ax.grid(True)
+    fig.savefig(f'../images/paper/contrast_std.pdf')
     plt.show()
 
     

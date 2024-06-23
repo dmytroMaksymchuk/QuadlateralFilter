@@ -1,3 +1,5 @@
+import math
+
 import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
@@ -8,39 +10,24 @@ from trilateral.trilateralFilter2D import trilateral_filter_2d
 from skimage.metrics import structural_similarity as ssim
 
 if __name__ == '__main__':
-    img = cv.imread('../images/clouds.png', cv.IMREAD_GRAYSCALE)
+    noised_img = cv.imread('../images/statue/noise_10/spatial_8/intensity_30/noised.jpg', cv.IMREAD_GRAYSCALE)
 
     sigmaSpatial = 8
-    sigmaIntensity = 25
+    sigmaIntensity = 30
 
-    kernelSize = sigmaSpatial * 6 + 1
-    noised_img = add_gauss_noise_2d_image(img, 10)
+    kernelSize = math.ceil(sigmaSpatial * 1.5) * 2 + 1
 
     quad = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity)[0]
     quad = quad.clip(0, 255).astype(np.uint8)
 
-    quadInclud01 = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity, inclusion_threshold=0.01)[0]
-    quadInclud01 = quadInclud01.clip(0, 255).astype(np.uint8)
+    quad_interp, uncert, trash = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity, interpolation=True)
+    quad_interp = quad_interp.clip(0, 255).astype(np.uint8)
 
-    quadInclud03 = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity, inclusion_threshold=0.03)[0]
-    quadInclud03 = quadInclud03.clip(0, 255).astype(np.uint8)
-
-    quadInclud05 = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity, inclusion_threshold=0.05)[0]
-    quadInclud05 = quadInclud05.clip(0, 255).astype(np.uint8)
-
-    quadInclud1 = quadrateral_filter_2d(noised_img, sigmaSpatial, sigmaIntensity, inclusion_threshold=0.1)[0]
-    quadInclud1 = quadInclud1.clip(0, 255).astype(np.uint8)
+    cv.imwrite('../images/statue/uncertainty/paper/noised.jpg', noised_img)
+    cv.imwrite('../images/statue/uncertainty/paper/filteredInterp.jpg', quad_interp)
+    cv.imwrite('../images/statue/uncertainty/paper/filtered.jpg', quad)
 
 
-    path = '../images/clouds_8_25_10_incl/'
-
-    cv.imwrite(path + 'quadlateral.jpg', quad.astype(np.uint8))
-    cv.imwrite(path + 'quadInclud01.jpg', quadInclud01)
-    cv.imwrite(path + 'quadInclud03.jpg', quadInclud03)
-    cv.imwrite(path + 'quadInclud05.jpg', quadInclud05)
-    cv.imwrite(path + 'quadInclud1.jpg', quadInclud1)
-
-    cv.waitKey(0)
 
 
 

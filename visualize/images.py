@@ -51,18 +51,18 @@ if __name__ == '__main__':
 
     path = '../images/statue/garbage/'
 
-    cv.imwrite(path + 'quadlateral.jpg', quad.astype(np.uint8))
-    cv.imwrite(path + 'bilateral.jpg', bilateral)
-    cv.imwrite(path + 'trilateral.jpg', trilateral.astype(np.uint8))
-    cv.imwrite(path + 'gaussian.jpg', gaussian)
-    cv.imwrite(path + 'noised.jpg', noised_img.astype(np.uint8))
-    cv.imwrite(path + 'diff_quad.jpg', np.abs(quad.astype(np.float32) - img).astype(np.uint8))
-    cv.imwrite(path + 'diff_bilateral.jpg', np.abs(bilateral.astype(np.float32) - img).astype(np.uint8))
-    cv.imwrite(path + 'diff_trilateral.jpg', np.abs(trilateral.astype(np.float32) - img).astype(np.uint8))
-    cv.imwrite(path + 'diff_quad_bilateral.jpg', np.abs(quad.astype(np.float32) - bilateral).astype(np.uint8))
-    cv.imwrite(path + 'ssim_quad.jpg', ssimQuad.astype(np.uint8))
-    cv.imwrite(path + 'ssim_bilateral.jpg', ssimBilateral.astype(np.uint8))
-    cv.imwrite(path + 'ssim_trilateral.jpg', ssimTrilateral.astype(np.uint8))
+    # cv.imwrite(path + 'quadlateral.jpg', quad.astype(np.uint8))
+    # cv.imwrite(path + 'bilateral.jpg', bilateral)
+    # cv.imwrite(path + 'trilateral.jpg', trilateral.astype(np.uint8))
+    # cv.imwrite(path + 'gaussian.jpg', gaussian)
+    # cv.imwrite(path + 'noised.jpg', noised_img.astype(np.uint8))
+    # cv.imwrite(path + 'diff_quad.jpg', np.abs(quad.astype(np.float32) - img).astype(np.uint8))
+    # cv.imwrite(path + 'diff_bilateral.jpg', np.abs(bilateral.astype(np.float32) - img).astype(np.uint8))
+    # cv.imwrite(path + 'diff_trilateral.jpg', np.abs(trilateral.astype(np.float32) - img).astype(np.uint8))
+    # cv.imwrite(path + 'diff_quad_bilateral.jpg', np.abs(quad.astype(np.float32) - bilateral).astype(np.uint8))
+    # cv.imwrite(path + 'ssim_quad.jpg', ssimQuad.astype(np.uint8))
+    # cv.imwrite(path + 'ssim_bilateral.jpg', ssimBilateral.astype(np.uint8))
+    # cv.imwrite(path + 'ssim_trilateral.jpg', ssimTrilateral.astype(np.uint8))
 
     cv.waitKey(0)
 
